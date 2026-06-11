@@ -33,7 +33,7 @@ class MixGaussLoss(nn.Module):
         cov_inv = torch.linalg.inv(cov)
         exponent = -0.5 * torch.einsum('bcd,bcde,bce->bc', diff, cov_inv, diff)
         log_det_cov = torch.logdet(cov)
-        log_pi = torch.log(pi + jitter)  # 数値安定性のために小さな値を加える
+        log_pi = torch.log(pi + jitter)
         log_prob = log_pi - 0.5 * log_det_cov + exponent
         nll = -torch.logsumexp(log_prob, dim=1)
         

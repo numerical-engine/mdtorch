@@ -1,6 +1,7 @@
 import torch
+import sys
 
-def mix_normal(pi:torch.Tensor, mu:torch.Tensor, cov:torch.Tensor, num_samples:int = 1)->torch.Tensor:
+def mix_gauss(pi:torch.Tensor, mu:torch.Tensor, cov:torch.Tensor, num_samples:int = 1)->torch.Tensor:
     """混合ガウス分布からサンプリングする関数。
 
     Args:
