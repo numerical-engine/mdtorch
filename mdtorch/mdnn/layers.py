@@ -67,14 +67,14 @@ class LinearCov_from_tril(nn.Linear):
         batch_size = x.shape[0]
         x = super().forward(x)
         x = x.view(batch_size, self.num_cat, self.out_dim*(self.out_dim+1)//2)
-
-        full_covariance = torch.zeros(batch_size, self.num_cat, self.out_dim, self.out_dim, device=x.device)
+        
+        chol_factor = torch.zeros(batch_size, self.num_cat, self.out_dim, self.out_dim, device=x.device, dtype=x.dtype)
         tril_indices = torch.tril_indices(self.out_dim, self.out_dim)
-        full_covariance[:, :, tril_indices[0], tril_indices[1]] = x
-        full_covariance = full_covariance + full_covariance.transpose(-1, -2)
-        full_covariance[:, :, torch.arange(self.out_dim), torch.arange(self.out_dim)] /= 2
-        full_covariance[:, :, torch.arange(self.out_dim), torch.arange(self.out_dim)] = (
-            self.diag_func(full_covariance[:, :, torch.arange(self.out_dim), torch.arange(self.out_dim)])
+        chol_factor[:, :, tril_indices[0], tril_indices[1]] = x
+        diag_idx = torch.arange(self.out_dim, device=x.device)
+        chol_factor[:, :, diag_idx, diag_idx] = (
+            self.diag_func(chol_factor[:, :, diag_idx, diag_idx])
         )
+        full_covariance = chol_factor @ chol_factor.transpose(-1, -2)
 
         return full_covariance
